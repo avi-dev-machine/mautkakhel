@@ -1,0 +1,66 @@
+# Docker Compose for AI Exercise Trainer
+# For local development and testing
+
+version: '3.8'
+
+services:
+  # Main API service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: exercise-trainer-api
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHON_VERSION=3.11
+      - PORT=8000
+      - HOST=0.0.0.0
+    volumes:
+      # Mount directories for persistence
+      - ./uploads:/app/uploads
+      - ./results:/app/results
+      # Mount code for hot-reload (development only)
+      - ./server.py:/app/server.py
+      - ./utils.py:/app/utils.py
+      - ./metrics.py:/app/metrics.py
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Optional: Redis for session management (production)
+  # redis:
+  #   image: redis:7-alpine
+  #   container_name: exercise-trainer-redis
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - redis-data:/data
+  #   restart: unless-stopped
+
+  # Optional: PostgreSQL for persistent storage (production)
+  # postgres:
+  #   image: postgres:15-alpine
+  #   container_name: exercise-trainer-db
+  #   environment:
+  #     - POSTGRES_USER=exercise
+  #     - POSTGRES_PASSWORD=trainer123
+  #     - POSTGRES_DB=exercise_db
+  #   ports:
+  #     - "5432:5432"
+  #   volumes:
+  #     - postgres-data:/var/lib/postgresql/data
+  #   restart: unless-stopped
+
+# Optional: Volume definitions for persistence
+# volumes:
+#   redis-data:
+#   postgres-data:
+
+networks:
+  default:
+    name: exercise-trainer-network

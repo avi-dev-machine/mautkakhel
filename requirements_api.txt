@@ -1,0 +1,5 @@
+# FastAPI Backend Requirements
+fastapi
+uvicorn[standard]
+python-multipart
+pydantic

@@ -1,0 +1,34 @@
+services:
+  - type: web
+    name: ai-exercise-trainer
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter  # Options: free, starter, standard, pro
+    region: oregon  # Options: oregon, ohio, virginia, frankfurt, singapore
+    
+    # Build settings
+    buildCommand: ""  # Docker handles build
+    
+    # Environment variables
+    envVars:
+      - key: PYTHON_VERSION
+        value: "3.11"
+      - key: PORT
+        value: "8000"
+      - key: HOST
+        value: "0.0.0.0"
+    
+    # Health check
+    healthCheckPath: /
+    
+    # Auto-deploy on git push
+    autoDeploy: true
+    
+    # Scaling (for paid plans)
+    numInstances: 1
+    
+    # Disk storage (for uploads/results)
+    disk:
+      name: exercise-data
+      mountPath: /app/data
+      sizeGB: 1
