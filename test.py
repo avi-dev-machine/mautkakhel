@@ -6,6 +6,7 @@ import time
 # Assuming PoseCalibrator exists in utils.py as per original context
 from utils import PoseCalibrator 
 from metrics import PerformanceMetrics
+from ai import analyze_exercise_metrics
 
 class ExerciseEvaluator:
     def __init__(self):
@@ -936,70 +937,185 @@ class ExerciseEvaluator:
                 # Add timestamp to the result
                 result['timestamp'] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 
-                with open('exercise_metrics.txt', 'w') as f:
-                    f.write(json.dumps(result, indent=2))
+                with open('exercise_metrics.txt', 'a') as f:
+                    f.write(json.dumps(result, indent=2, default=lambda o: float(o)))
                 print("\n✓ Metrics data saved to exercise_metrics.txt")
             except Exception as e:
                 print(f"\n⚠ Could not save metrics data: {e}")
 
-# CLI Helpers
-def display_menu():
-    print("\n" + "="*50)
-    print("     AI EXERCISE TRAINER")
-    print("="*50)
-    print("\nSelect Exercise:")
-    print("1. Push-ups")
-    print("2. Squats")
-    print("3. Sit-ups")
-    print("4. Sit-and-Reach (Flexibility)")
-    print("5. Skipping (Jump Rope)")
-    print("6. Jumping Jacks")
-    print("7. Vertical Jump")
-    print("8. Broad Jump (Horizontal)")
-    print("\nSelect Input Source:")
-    print("1. Webcam (Live)")
-    print("2. Video File")
-    print("\nSave output video? (y/n)")
+# # CLI Helpers
+# def display_menu():
+#     print("\n" + "="*50)
+#     print("     AI EXERCISE TRAINER")
+#     print("="*50)
+#     print("\nSelect Exercise:")
+#     print("1. Push-ups")
+#     print("2. Squats")
+#     print("3. Sit-ups")
+#     print("4. Sit-and-Reach (Flexibility)")
+#     print("5. Skipping (Jump Rope)")
+#     print("6. Jumping Jacks")
+#     print("7. Vertical Jump")
+#     print("8. Broad Jump (Horizontal)")
+#     print("\nSelect Input Source:")
+#     print("1. Webcam (Live)")
+#     print("2. Video File")
+#     print("\nSave output video? (y/n)")
 
-def get_exercise_type():
+# def get_exercise_type():
+#     while True:
+#         display_menu()
+#         choice = input("\nEnter Exercise (1-8): ").strip()
+#         if choice == '1': return 'pushup'
+#         elif choice == '2': return 'squat'
+#         elif choice == '3': return 'situp'
+#         elif choice == '4': return 'sitnreach'
+#         elif choice == '5': return 'skipping'
+#         elif choice == '6': return 'jumpingjacks'
+#         elif choice == '7': return 'vjump'
+#         elif choice == '8': return 'bjump'
+#         else: print("Invalid choice. Try again.")
+
+# def get_source():
+#     while True:
+#         choice = input("Enter Source (1 for Webcam, 2 for Video): ").strip()
+#         if choice == '1': return '0'
+#         elif choice == '2':
+#             video_path = input("Enter video file path/name: ").strip()
+#             if video_path: return video_path
+#             else: print("Invalid path!")
+#         else: print("Invalid choice! Please enter 1 or 2")
+
+# def get_save_option():
+#     while True:
+#         choice = input("Save output video? (y/n): ").strip().lower()
+#         if choice == 'y': return True
+#         elif choice == 'n': return False
+#         else: print("Invalid choice!")
+
+# if __name__ == "__main__":
+#     exercise_type = get_exercise_type()
+#     source = get_source()
+#     save_output = get_save_option()
+    
+#     trainer = ExerciseEvaluator()
+#     trainer.run(
+#         exercise_type=exercise_type,
+#         source=source,
+#         save_output=save_output
+#     )
+def display_menu(completed_exercises):
+    print("\n" + "=" * 50)
+    print("     AI EXERCISE TRAINER")
+    print("=" * 50)
+    print("\nSelect Exercise:")
+    
+    exercises = {
+        "1": ("Push-ups", "pushup"),
+        "2": ("Squats", "squat"),
+        "3": ("Sit-ups", "situp"),
+        "4": ("Sit-and-Reach (Flexibility)", "sitnreach"),
+        "5": ("Skipping (Jump Rope)", "skipping"),
+        "6": ("Jumping Jacks", "jumpingjacks"),
+        "7": ("Vertical Jump", "vjump"),
+        "8": ("Broad Jump (Horizontal)", "bjump"),
+    }
+    
+    for key, (name, ex_type) in exercises.items():
+        status = " ✓ COMPLETED" if ex_type in completed_exercises else ""
+        print(f"{key}. {name}{status}")
+    
+    print("\n9. View AI Analysis")
+    print("0. Exit")
+    
+    return exercises
+
+
+def get_exercise_type(completed_exercises):
     while True:
-        display_menu()
-        choice = input("\nEnter Exercise (1-8): ").strip()
-        if choice == '1': return 'pushup'
-        elif choice == '2': return 'squat'
-        elif choice == '3': return 'situp'
-        elif choice == '4': return 'sitnreach'
-        elif choice == '5': return 'skipping'
-        elif choice == '6': return 'jumpingjacks'
-        elif choice == '7': return 'vjump'
-        elif choice == '8': return 'bjump'
-        else: print("Invalid choice. Try again.")
+        exercises = display_menu(completed_exercises)
+        choice = input("\nEnter Exercise (1-8), 9 for AI Analysis, or 0 to Exit: ").strip()
+        
+        if choice == "0":
+            return None, "exit"
+        elif choice == "9":
+            return None, "analyze"
+        elif choice in exercises:
+            exercise_name, exercise_type = exercises[choice]
+            if exercise_type in completed_exercises:
+                redo = input(f"\n{exercise_name} already completed. Do it again? (y/n): ").strip().lower()
+                if redo == "y":
+                    return exercise_type, "normal"
+                else:
+                    continue
+            return exercise_type, "normal"
+        else:
+            print("Invalid choice. Try again.")
+
 
 def get_source():
     while True:
         choice = input("Enter Source (1 for Webcam, 2 for Video): ").strip()
-        if choice == '1': return '0'
-        elif choice == '2':
+        if choice == "1":
+            return "0"
+        elif choice == "2":
             video_path = input("Enter video file path/name: ").strip()
-            if video_path: return video_path
-            else: print("Invalid path!")
-        else: print("Invalid choice! Please enter 1 or 2")
+            if video_path:
+                return video_path
+            else:
+                print("Invalid path!")
+        else:
+            print("Invalid choice! Please enter 1 or 2")
+
 
 def get_save_option():
     while True:
         choice = input("Save output video? (y/n): ").strip().lower()
-        if choice == 'y': return True
-        elif choice == 'n': return False
-        else: print("Invalid choice!")
+        if choice == "y":
+            return True
+        elif choice == "n":
+            return False
+        else:
+            print("Invalid choice!")
+
 
 if __name__ == "__main__":
-    exercise_type = get_exercise_type()
-    source = get_source()
-    save_output = get_save_option()
+    from ai import analyze_exercise_metrics
     
-    trainer = ExerciseEvaluator()
-    trainer.run(
-        exercise_type=exercise_type,
-        source=source,
-        save_output=save_output
-    )
+    completed_exercises = set()
+    
+    while True:
+        exercise_type, action = get_exercise_type(completed_exercises)
+        
+        if action == "exit":
+            print("\nExiting... Thank you for using AI Exercise Trainer!")
+            break
+        elif action == "analyze":
+            print("\n" + "=" * 50)
+            print("     AI ANALYSIS")
+            print("=" * 50)
+            try:
+                analysis = analyze_exercise_metrics()
+                print("\n" + analysis)
+            except Exception as e:
+                print(f"\nError generating analysis: {e}")
+            input("\nPress Enter to continue...")
+            continue
+        
+        source = get_source()
+        save_output = get_save_option()
+        
+        trainer = ExerciseEvaluator()
+        trainer.run(
+            exercise_type=exercise_type,
+            source=source,
+            save_output=save_output
+        )
+        # print(
+        #     f"\nSelected Exercise: {exercise_type}, Source: {source}, Save Output: {save_output}"
+        # )
+        
+        # Mark as completed
+        completed_exercises.add(exercise_type)
+        print(f"\n✓ {exercise_type.upper()} marked as completed!")
+        input("\nPress Enter to continue...")

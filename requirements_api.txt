@@ -1,5 +1,22 @@
-# FastAPI Backend Requirements
-fastapi
-uvicorn[standard]
-python-multipart
-pydantic
+# ============================================================================
+# AI Exercise Trainer - FastAPI Backend Dependencies
+# ============================================================================
+
+# Web Framework
+fastapi==0.109.0
+uvicorn[standard]==0.27.0
+
+# File handling & validation
+python-multipart==0.0.6
+pydantic==2.5.3
+
+# Cheat Detection Dependencies
+transformers==4.36.0
+timm==0.9.12
+easyocr==1.7.0
+av==11.0.0
+
+# Additional utilities
+aiofiles==23.2.1
+python-jose[cryptography]==3.3.0
+

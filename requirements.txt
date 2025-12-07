@@ -1,8 +1,24 @@
-# Core Dependencies for AI Exercise Trainer
-opencv-python-headless
-numpy
-ultralytics
-pillow
-pyyaml
-scipy
-requests
+# ============================================================================
+# AI Exercise Trainer - Core Dependencies
+# ============================================================================
+
+# Computer Vision & Deep Learning
+opencv-python-headless==4.8.1.78
+numpy==1.24.3
+ultralytics==8.1.0
+pillow==10.1.0
+
+# Configuration & Utilities
+pyyaml==6.0.1
+scipy==1.11.4
+requests==2.31.0
+
+# AI Analysis (Google Gemini integration)
+langchain==0.1.0
+langchain-google-genai==0.0.5
+google-generativeai==0.3.2
+
+# Additional utilities for pose detection
+torch>=2.0.0
+torchvision>=0.15.0
+
