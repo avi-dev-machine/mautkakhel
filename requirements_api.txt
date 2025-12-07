@@ -3,20 +3,20 @@
 # ============================================================================
 
 # Web Framework
-fastapi==0.109.0
-uvicorn[standard]==0.27.0
+fastapi
+uvicorn[standard]
 
 # File handling & validation
-python-multipart==0.0.6
-pydantic==2.5.3
+python-multipart
+pydantic
 
 # Cheat Detection Dependencies
-transformers==4.36.0
-timm==0.9.12
-easyocr==1.7.0
-av==11.0.0
+transformers
+timm
+easyocr
+av
 
 # Additional utilities
-aiofiles==23.2.1
-python-jose[cryptography]==3.3.0
+aiofiles
+python-jose[cryptography]
 
